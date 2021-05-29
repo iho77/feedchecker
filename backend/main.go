@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -59,7 +60,9 @@ type workerdoc struct {
 	Filter  string             `bson:"filter"`
 }
 
-const MongoURI string = "mongodb://10.5.200.153:27017/"
+var wwwroot = flag.String("wwwroot", "../frontend/dist", "-wwwroot frontendpath")
+var MongoURI = flag.String("mongo", "mongodb://10.5.200.153:27017/", "-mongo dbpath")
+var wwwport = flag.String("wwwport", "8080", "-wwwport port for http server")
 
 func GetMongoDbConnection(uri string) (*mongo.Client, error) {
 
@@ -113,7 +116,7 @@ func getWorkerStat(uri string, stat interface{}) (err error) {
 
 func GetAllWorkers(c *gin.Context) {
 
-	wksCollection, err := getMongoDbCollection(MongoURI, "feed", "workers")
+	wksCollection, err := getMongoDbCollection(*MongoURI, "feed", "workers")
 
 	//var res []string
 
@@ -193,7 +196,7 @@ func GetAllIOCLAlarms(uri string, db mongodoc) []stat {
 		log.Println(jsonErr)
 	}
 
-	ipCollection, err := getMongoDbCollection(MongoURI, db.db, db.collection)
+	ipCollection, err := getMongoDbCollection(*MongoURI, db.db, db.collection)
 
 	//var res []string
 
@@ -221,7 +224,7 @@ func GetAllIOCLAlarms(uri string, db mongodoc) []stat {
 func GetAllIOCS(c *gin.Context) {
 
 	tag := c.Param("tag")
-	wksCollection, err := getMongoDbCollection(MongoURI, "feed", "workers")
+	wksCollection, err := getMongoDbCollection(*MongoURI, "feed", "workers")
 
 	//var res []string
 
@@ -255,7 +258,7 @@ func GetIOCByID(c *gin.Context) {
 	id := c.Param("id")
 	feed := c.Param("feed")
 
-	wksCollection, err := getMongoDbCollection(MongoURI, "feed", feed)
+	wksCollection, err := getMongoDbCollection(*MongoURI, "feed", feed)
 
 	//var res []string
 
@@ -284,7 +287,7 @@ func GetIOCByName(c *gin.Context) {
 	name := c.Param("name")
 	feed := c.Param("feed")
 
-	wksCollection, err := getMongoDbCollection(MongoURI, "feed", feed)
+	wksCollection, err := getMongoDbCollection(*MongoURI, "feed", feed)
 
 	//var res []string
 
@@ -319,10 +322,11 @@ func GetIOCByName(c *gin.Context) {
 }
 
 func main() {
+	flag.Parse()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.Default())
-	r.Use(static.Serve("/", static.LocalFile("./wwwroot", true)))
+	r.Use(static.Serve("/", static.LocalFile(*wwwroot, true)))
 
 	api := r.Group("/api")
 	{
@@ -332,6 +336,6 @@ func main() {
 		api.GET("/ioc/searchbyname/:feed/:name", GetIOCByName)
 	}
 
-	r.Run(":3000")
+	r.Run(":" + *wwwport)
 
 }
