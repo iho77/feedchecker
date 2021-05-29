@@ -28,5 +28,7 @@ rule rulename
   alarm Some text to put in alarm message  
 endrule  
 
-
+\#
+alarm none - do not send alarm to Kafka output, only logging in statistics
+stop after alarm - do not procees next rules
 
