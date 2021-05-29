@@ -1,0 +1,10 @@
+cd ./frontend
+npm run build
+cd ../workers/ipsearcher
+go build -o ../../bin/ipsearch 
+cd ../textsearcher
+go build -o ../../bin/textsearch
+cd ../../backend
+go build -o ../bin/ti
+
+
