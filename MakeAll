@@ -1,10 +1,14 @@
 cd ./frontend
 npm run build
 cd ../workers/ipsearcher
-go build -o ../../bin/ipsearch 
+go build -o ../../bin/ipsearch -v 
 cd ../textsearcher
-go build -o ../../bin/textsearch
+go build -o ../../bin/textsearch -v
 cd ../../backend
-go build -o ../bin/ti
+go build -o ../bin/ti -v
+cd ../connectors/jira
+go build -o ../../bin/jiracon -v
+
+
 
 

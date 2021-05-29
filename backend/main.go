@@ -60,7 +60,7 @@ type workerdoc struct {
 	Filter  string             `bson:"filter"`
 }
 
-var wwwroot = flag.String("wwwroot", "../frontend/dist", "-wwwroot frontendpath")
+var wwwroot = flag.String("wwwroot", "./wwwroot", "-wwwroot frontendpath")
 var MongoURI = flag.String("mongo", "mongodb://10.5.200.153:27017/", "-mongo dbpath")
 var wwwport = flag.String("wwwport", "8080", "-wwwport port for http server")
 
