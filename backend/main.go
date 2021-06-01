@@ -213,7 +213,14 @@ func GetAllIOCLAlarms(uri string, db mongodoc) []stat {
 			log.Fatal(err)
 		}
 
-		f[i].FeedData = append(f[i].FeedData, res...)
+		if len(res) == 0 {
+			f[i].FeedData = append(f[i].FeedData, bson.M{"res": "no data"})
+		} else {
+
+			f[i].FeedData = append(f[i].FeedData, res...)
+		}
+
+		filterCursor.Close(context.Background())
 
 	}
 
