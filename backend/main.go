@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"embed"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/contrib/static"
@@ -17,6 +20,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+//go:embed wwwroot
+var content embed.FS
+
+type embedFileSystem struct {
+	http.FileSystem
+}
 
 type stat struct {
 	Domain    string   `json:"domain"`
@@ -328,12 +338,30 @@ func GetIOCByName(c *gin.Context) {
 
 }
 
+func (e embedFileSystem) Exists(prefix string, path string) bool {
+	_, err := e.Open(path)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func EmbedFolder(fsEmbed embed.FS, targetPath string) static.ServeFileSystem {
+	fsys, err := fs.Sub(fsEmbed, targetPath)
+	if err != nil {
+		panic(err)
+	}
+	return embedFileSystem{
+		FileSystem: http.FS(fsys),
+	}
+}
+
 func main() {
 	flag.Parse()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.Default())
-	r.Use(static.Serve("/", static.LocalFile(*wwwroot, true)))
+	r.Use(static.Serve("/", EmbedFolder(content, "wwwroot")))
 
 	api := r.Group("/api")
 	{

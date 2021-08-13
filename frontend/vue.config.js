@@ -1,4 +1,4 @@
 module.exports = {
     // настройки...
-    outputDir : "../bin/wwwroot"
+    outputDir : "../backend/wwwroot"
   }
